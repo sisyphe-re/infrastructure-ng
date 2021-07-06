@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Campaign</h1>
+<h2>{{ campaign.name }}</h2>
+Source code: <a href="{{ campaign.source }}">{{ campaign.source }}</a> <br/>
+Expected Duration: {{ campaign.duration }} minutes <br/>
+<h1>Runs</h1>
+<ul>                                                                                                               
+{% for run in runs %}  
+<li><a href="{% url 'run_detail' run_id=run.pk %}">{{ run.start }} -> {{ run.end }}</a></li>
+{% endfor %}
+{% endblock %}

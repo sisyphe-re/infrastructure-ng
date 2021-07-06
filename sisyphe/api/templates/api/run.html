@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Run</h1>
+<h2>{{ run.uuid }}</h2>
+{{ run.start }} -> {{ run.end }}
+<h1>Artifacts:</h1>
+<a href="/artifacts/{{ run.uuid }}/">Link to the artifacts</a>
+
+{% endblock %}

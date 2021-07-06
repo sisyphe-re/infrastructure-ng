@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8">
+		<title>{% block title %}{% endblock %}</title>
+		<link rel="preconnect" href="https://fonts.gstatic.com">
+		<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="theme-color" content="#157878">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<link rel="stylesheet" href="{% static 'style.css' %}">
+	</head>
+	<body>
+		<a id="skip-to-content" href="#content">Skip to the content.</a>
+
+		<header class="page-header" role="banner">
+			<h1 class="project-name">Sisyphe</h1>
+			<h2 class="project-tagline">Sisyphe is repeatable, reproducible network experiment platform.</h2>
+
+			<a href="https://github.com/pages-themes/cayman" class="btn">View on GitHub</a>
+
+
+			<a href="https://github.com/pages-themes/cayman/zipball/master" class="btn">Download .zip</a>
+			<a href="https://github.com/pages-themes/cayman/tarball/master" class="btn">Download .tar.gz</a>
+
+		</header>
+
+		<main id="content" class="main-content" role="main">
+			{% block content %}{% endblock %}
+			<footer class="site-footer">
+				<span class="site-footer-owner">Sisyphe is maintained by <a href"mailto:remy@grunblatt.org">Rémy Grünblatt</a>.</span>
+			</footer>
+		</main>
+	</body>
+</html>
