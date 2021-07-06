@@ -60,6 +60,10 @@ in
         type = types.str;
         default = "/data/sisyphe.db3";
       };
+      djangoDebug = mkOption {
+        type = types.str;
+        default = "False";
+      };
     };
   };
 
@@ -85,6 +89,7 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" "rabbitmq.service" ];
       environment = {
+        DEBUG = "${cfg.djangoDebug}";
         SHELL = "bash";
         DB_NAME = "${cfg.djangoDbPath}";
         DJANGO_HOST = "${cfg.host}";
@@ -205,6 +210,7 @@ in
       before = [ "nginx.service" ];
       after = [ "network.target" ];
       environment = {
+        DEBUG = "${cfg.djangoDebug}";
         DB_NAME = "${cfg.djangoDbPath}";
         DJANGO_HOST = "${cfg.host}";
         DJANGO_SECRET_KEY = "${cfg.djangoSecretKey}";
