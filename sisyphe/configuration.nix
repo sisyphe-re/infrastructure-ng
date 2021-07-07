@@ -23,14 +23,22 @@ let
     echo "Listing the build artifacts";
     nix-store -qR ./result &> ''${ARTIFACTS_DIRECTORY}/build_artifacts.txt;
 
-    echo "Pushing the build artifacts to the binary cache";
-    # nix-store -qR ./result | cachix push root;
+    echo "Copying the build artifacts to the binary cache";
+    mkdir -p ''${ARTIFACTS_DIRECTORY}/store/ 
+    ${pkgs.nixUnstable}/bin/nix copy --to file:''${ARTIFACTS_DIRECTORY}/store/ ./result
 
     echo "Running the campaign"
     ./result/run &> ''${ARTIFACTS_DIRECTORY}/campaign_run.txt;
   '';
 in
 {
+
+  environment.systemPackages = [
+    (pkgs.writeShellScriptBin "nixFlakes" ''
+      exec ${pkgs.nixUnstable}/bin/nix --experimental-features "nix-command flakes" "$@"
+    '')
+  ];
+
   nix = {
     binaryCaches = [
       "https://bincache.grunblatt.org"
@@ -88,7 +96,7 @@ in
     options =
       let
         # this line prevents hanging on network split
-        automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
+        automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=30s,x-systemd.mount-timeout=30s";
 
       in
       [ "${automount_opts},credentials=/etc/smb_secrets" ];
