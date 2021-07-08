@@ -13,6 +13,9 @@ let
     export HOME=$(eval echo ~''$USER);
     cd ~/;
 
+    echo "Saving the repository to SWH";
+    curl -X POST "https://archive.softwareheritage.org/api/1/origin/save/git/url/''${REPOSITORY}";
+
     echo "Cloning the campaign repository…";
     git clone ''${REPOSITORY};
     cd $(basename ''${REPOSITORY} .git);
@@ -88,7 +91,7 @@ in
     };
   };
 
- fileSystems."${sshPath}" = {
+  fileSystems."${sshPath}" = {
     device = "//10.0.2.4/qemu";
     fsType = "cifs";
     options =

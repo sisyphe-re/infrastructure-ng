@@ -1,13 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Campaign</h1>
-<h2>{{ campaign.name }}</h2>
-Source code: <a href="{{ campaign.source }}">{{ campaign.source }}</a> <br/>
-Expected Duration: {{ campaign.duration }} minutes <br/>
+<h1>Campaign « {{ campaign.name }} »</h1>
+The source code of this campaign is available at <a href="{{ campaign.source }}">{{ campaign.source }}</a>. Its expected duration is {{ campaign.duration }} minutes. Backup of the code of this campaign are hosted by Software Heritage at <a href="https://archive.softwareheritage.org/browse/origin/directory/?origin_url={{ campaign.source }}">this address</a>.<br/>
 <h1>Runs</h1>
-<ul>                                                                                                               
-{% for run in runs %}  
-<li><a href="{% url 'run_detail' run_id=run.pk %}">{{ run.start }} -> {{ run.end }}</a></li>
+{% for run in runs reversed %}
+<div class="list-group-item list-group-item-action" aria-current="true">
+	<div class="d-flex w-100 justify-content-between">
+		<h5 class="mb-1">Run {{ run.uuid }}</h5>
+		<small>
+			<a href="https://{{ run.uuid }}.cache.grunblatt.org/">Build Artifacts</a> -- 
+			<a href="/artifacts/{{ run.uuid }}">Experiment Artifacts</a>
+		</small>
+	</div>
+	<!--			<p class="mb-1">Some placeholder content in a paragraph.</p> -->
+	<small>{{ run.start | date:'d/m/Y G:i:s' }} -> {{ run.end | date:'d/m/Y G:i:s' }}</small>
+</div>
 {% endfor %}
 {% endblock %}

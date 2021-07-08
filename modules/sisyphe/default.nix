@@ -125,6 +125,7 @@ in
     };
 
     services.nginx = {
+      additionalModules = [ pkgs.nginxModules.fancyindex ];
       enable = true;
       preStart = "mkdir -p /data/nginx/cache";
       recommendedProxySettings = true;
@@ -156,6 +157,11 @@ in
           alias = "/home/sisyphe/";
           extraConfig = ''
             autoindex on;
+            fancyindex on;
+            fancyindex_localtime on;
+            fancyindex_exact_size off;
+            fancyindex_name_length 255;
+            fancyindex_ignore "store";
           '';
         };
       };

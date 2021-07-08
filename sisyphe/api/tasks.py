@@ -29,7 +29,7 @@ def runCampaign(instance_id):
     #environment["HOME_DIRECTORY"] = dirname
 
     # SSH Port
-    sshPort = random.randint(10000, 65535)
+    sshPort = random.randint(10000, 40000)
     print(f"The ssh server will run on {sshPort}")
     key = rsa.generate_private_key(backend=default_backend(), public_exponent=65537, key_size=2048)
     public_key = key.public_key().public_bytes(serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH)

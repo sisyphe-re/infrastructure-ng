@@ -13,7 +13,7 @@
       specialArgs = {
         inherit django-toolbox;
       };
-      nixosModules.sisyphe = import ./modules/sisyphe { inherit django-toolbox; } ;
+      nixosModules.sisyphe = import ./modules/sisyphe { inherit django-toolbox; };
       nixosModule = self.nixosModules.sisyphe;
     };
 }

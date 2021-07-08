@@ -44,29 +44,29 @@ let
         eval = toEval modules.standalone;
         name = "nixos-${eval.config.system.nixos.label}-${pkgs.stdenv.hostPlatform.system}";
       in
-        import <nixpkgs/nixos/lib/make-disk-image.nix> {
-          inherit lib name pkgs;
-          config = eval.config;
-          contents = [];
-          diskSize = 8192;
-          format = "qcow2";
-          postVM = ''
-            extension=''${diskImage##*.}
-            friendlyName=$out/${name}.$extension
-            mv "$diskImage" "$friendlyName"
-            diskImage=$friendlyName
+      import <nixpkgs/nixos/lib/make-disk-image.nix> {
+        inherit lib name pkgs;
+        config = eval.config;
+        contents = [ ];
+        diskSize = 8192;
+        format = "qcow2";
+        postVM = ''
+          extension=''${diskImage##*.}
+          friendlyName=$out/${name}.$extension
+          mv "$diskImage" "$friendlyName"
+          diskImage=$friendlyName
 
-            mkdir -p $out/nix-support
+          mkdir -p $out/nix-support
 
-            ${pkgs.jq}/bin/jq -n \
-              --arg label ${lib.escapeShellArg eval.config.system.nixos.label} \
-              --arg system ${lib.escapeShellArg pkgs.stdenv.hostPlatform.system} \
-              --arg logical_bytes "$(${pkgs.qemu}/bin/qemu-img info --output json "$diskImage" | ${pkgs.jq}/bin/jq '."virtual-size"')" \
-              --arg file "$diskImage" \
-              '$ARGS.named' \
-              > $out/nix-support/image-info.json
-          '';
-        };
+          ${pkgs.jq}/bin/jq -n \
+            --arg label ${lib.escapeShellArg eval.config.system.nixos.label} \
+            --arg system ${lib.escapeShellArg pkgs.stdenv.hostPlatform.system} \
+            --arg logical_bytes "$(${pkgs.qemu}/bin/qemu-img info --output json "$diskImage" | ${pkgs.jq}/bin/jq '."virtual-size"')" \
+            --arg file "$diskImage" \
+            '$ARGS.named' \
+            > $out/nix-support/image-info.json
+        '';
+      };
   };
   scripts = {
     standalone = pkgs.writeScript "run" ''
@@ -81,4 +81,4 @@ let
     '';
   };
 in
-  lib.mapAttrs (name: v: v // { run = scripts.${name}; eval = evals.${name}; modules = modules.${name};}) scripts
+lib.mapAttrs (name: v: v // { run = scripts.${name}; eval = evals.${name}; modules = modules.${name}; }) scripts
