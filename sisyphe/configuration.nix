@@ -10,7 +10,7 @@ let
     export SSH_PATH="${sshPath}"
     export ARTIFACTS_DIRECTORY="${sshPath}"
     export STREAM_PATH=''${ARTIFACTS_DIRECTORY};
-    export HOME=''${RUNTIME_DIRECTORY};
+    export HOME=$(eval echo ~''$USER);
     cd ~/;
 
     echo "Cloning the campaign repository…";
@@ -25,7 +25,7 @@ let
 
     echo "Copying the build artifacts to the binary cache";
     mkdir -p ''${ARTIFACTS_DIRECTORY}/store/ 
-    ${pkgs.nixUnstable}/bin/nix copy --to file:''${ARTIFACTS_DIRECTORY}/store/ ./result
+    ${pkgs.nixUnstable}/bin/nix  --experimental-features nix-command copy --to file:''${ARTIFACTS_DIRECTORY}/store/ ./result
 
     echo "Running the campaign"
     ./result/run &> ''${ARTIFACTS_DIRECTORY}/campaign_run.txt;
@@ -79,8 +79,6 @@ in
       };
 
       serviceConfig = {
-        RuntimeDirectory = "campaign";
-        RuntimeDirectoryPreserve = true;
         EnvironmentFile = "/etc/sisyphe_secrets";
       };
 
@@ -96,7 +94,7 @@ in
     options =
       let
         # this line prevents hanging on network split
-        automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=30s,x-systemd.mount-timeout=30s";
+        automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=30s,x-systemd.mount-timeout=30s,vers=3.0";
 
       in
       [ "${automount_opts},credentials=/etc/smb_secrets" ];
