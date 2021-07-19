@@ -10,6 +10,34 @@
 
   outputs = { self, nixpkgs, sops-nix, django-toolbox }:
     {
+      devShell.x86_64-linux =
+        with import nixpkgs { system = "x86_64-linux"; };
+        let customPython = python3.withPackages
+          (p: [
+            p.django_3
+            p.psycopg2
+            p.daphne
+            p.celery
+            p.cryptography
+            p.python-crontab
+            (python3Packages.toPythonModule django-toolbox.packages.x86_64-linux.django-celery-beat)
+            (python3Packages.toPythonModule django-toolbox.packages.x86_64-linux.django-timezone-field)
+          ]);
+        in
+        mkShell
+          {
+            buildInputs = [
+              nixpkgs-fmt
+              customPython
+            ];
+
+            shellHook = ''
+              export DB_NAME="/home/remy/Sisyphe/infrastructure-ng/sisyphe/sisyphe.db3";
+              export DJANGO_HOST="127.0.0.1";
+              export DJANGO_SECRET_KEY="toto";
+              cd sisyphe
+            '';
+          };
       specialArgs = {
         inherit django-toolbox;
       };
