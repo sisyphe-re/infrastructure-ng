@@ -22,7 +22,12 @@ in
       enable = mkEnableOption "sisyphe service";
       host = mkOption {
         type = types.str;
-        default = "sisyphe2.grunblatt.org";
+        default = "sisyphe-api.grunblatt.org";
+      };
+      dataDir = mkOption {
+        type = types.str;
+        default = "/var/lib/sisyphe";
+        description = "Directory to store the sisyphe server data.";
       };
       rabbitmqPort = mkOption {
         type = types.int;
@@ -103,9 +108,7 @@ in
       serviceConfig = {
         ExecStart = pkgs.writeScript "celery" ''#!${pkgs.runtimeShell} -l
         export PATH=''${PATH}:${pkgs.nix}/bin:${pkgs.git}/bin:${pkgs.gnutar}/bin:${pkgs.gzip}/bin:${pkgs.nix}/bin:${pkgs.nix}/bin
-        cd /var/lib/sisyphe;
-        env;
-        whoami;
+        cd ${cfg.dataDir}/src
         ${pythonWithDjango}/bin/celery -A sisyphe worker -B
       '';
         User = "sisyphe";
@@ -226,21 +229,19 @@ in
         AMQP_AUTHORITY = "${cfg.host}";
         AMQP_PORT = "${builtins.toString cfg.rabbitmqPort}";
       };
+      preStart = ''
+        # Update sources
+        ${pkgs.coreutils}/bin/rm -rf ${cfg.dataDir}/src
+        ${pkgs.coreutils}/bin/cp -r ${../../sisyphe}/. ${cfg.dataDir}/src
+        cd ${cfg.dataDir}/src &&
+        ${pythonWithDjango}/bin/python manage.py migrate --noinput &&
+        ${pythonWithDjango}/bin/python manage.py collectstatic --noinput
+      '';
       script = ''
-        cd /var/lib/sisyphe &&
-        ${pythonWithDjango}/bin/python manage.py makemigrations &&
-        ${pythonWithDjango}/bin/python manage.py migrate &&
-        ${pythonWithDjango}/bin/python manage.py collectstatic --noinput &&
-        echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='${cfg.djangoUsername}').exists() or User.objects.create_superuser('${cfg.djangoUsername}', '${cfg.djangoEmail}', '${cfg.djangoPassword}')" | ${pythonWithDjango}/bin/python manage.py shell &&
+        cd ${cfg.dataDir}/src &&
         ${pythonWithDjango}/bin/daphne -u /tmp/daphne.sock sisyphe.asgi:application
       '';
       serviceConfig = {
-        ExecStartPre = [
-          "+${pkgs.coreutils}/bin/rm -rf /var/lib/sisyphe"
-          "+${pkgs.coreutils}/bin/cp -r ${../../sisyphe}/. /var/lib/sisyphe"
-          "+${pkgs.coreutils}/bin/chown -R sisyphe:sisyphe /var/lib/sisyphe"
-          "+${pkgs.coreutils}/bin/chmod ug+w -R /var/lib/sisyphe"
-        ];
         WorkingDirectory = "/var/lib/sisyphe";
         StateDirectory = "sisyphe";
         RestartSec = 5;
