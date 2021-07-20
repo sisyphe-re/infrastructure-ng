@@ -12,7 +12,7 @@ let
   # Additional Environment Variables
   runCampaign = pkgs.writeScriptBin "runCampaign" ''
     #! ${pkgs.nix}/bin/nix-shell
-    #! nix-shell -i bash -p git nix gnutar openssh cachix coreutils
+    #! nix-shell -i bash -p git nix gnutar openssh cachix coreutils curl
 
     export HOME=$(eval echo ~''$USER);
     cd ~/;
