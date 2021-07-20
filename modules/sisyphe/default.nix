@@ -92,7 +92,7 @@ in
       enable = true;
       description = "The sisyphe celery server";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "rabbitmq.service" ];
+      after = [ "network.target" "rabbitmq.service" "sisyphe.service" ];
       environment = {
         DEBUG = "${cfg.djangoDebug}";
         SHELL = "bash";
@@ -232,7 +232,7 @@ in
       preStart = ''
         # Update sources
         ${pkgs.coreutils}/bin/rm -rf ${cfg.dataDir}/src
-        ${pkgs.coreutils}/bin/cp -r ${../../sisyphe}/. ${cfg.dataDir}/src"
+        ${pkgs.coreutils}/bin/cp -r ${../../sisyphe}/. ${cfg.dataDir}/src
         cd ${cfg.dataDir}/src &&
         ${pythonWithDjango}/bin/python manage.py migrate --noinput &&
         ${pythonWithDjango}/bin/python manage.py collectstatic --noinput

@@ -99,6 +99,7 @@ def stopCampaign(process_id):
     with open(f"{dirname}/stop_stdout.txt","wb") as out, open(f"{dirname}/stop_stderr.txt","wb") as err:
         os.killpg(os.getpgid(process.pid), signal.SIGTERM)
         run.end = datetime.datetime.now()
+        run.hidden = False
         run.save()
         # Clean up qcow2
         subprocess.run(f"rm /var/tmp/sisyphe_{uuid}_nixos.qcow2", shell=True, env=environment)
