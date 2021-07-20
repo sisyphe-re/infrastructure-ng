@@ -2,14 +2,18 @@
 let
   sshPath = "/srv";
   sshPublicKey = (builtins.getEnv "SSH_PUBLIC_KEY");
+  customEnvironment = {
+    NIX_REMOTE = "daemon";
+    NIX_PATH = "nixpkgs=${pkgs.path}";
+    SSH_PATH = "${sshPath}";
+    ARTIFACTS_DIRECTORY = "${sshPath}";
+    STREAM_PATH = "${sshPath}";
+  };
   # Additional Environment Variables
   runCampaign = pkgs.writeScriptBin "runCampaign" ''
     #! ${pkgs.nix}/bin/nix-shell
     #! nix-shell -i bash -p git nix gnutar openssh cachix coreutils
 
-    export SSH_PATH="${sshPath}"
-    export ARTIFACTS_DIRECTORY="${sshPath}"
-    export STREAM_PATH=''${ARTIFACTS_DIRECTORY};
     export HOME=$(eval echo ~''$USER);
     cd ~/;
 
@@ -32,6 +36,19 @@ let
 
     echo "Running the campaign"
     ./result/run &> ''${ARTIFACTS_DIRECTORY}/campaign_run.txt;
+  '';
+  finalizeCampaign = pkgs.writeScriptBin "finalizeCampaign" ''
+    #! ${pkgs.nix}/bin/nix-shell
+    #! nix-shell -i bash -p git nix gnutar openssh cachix coreutils
+
+    export HOME=$(eval echo ~''$USER);
+    cd ~/;
+
+    echo "Entering the campaign repository…";
+    cd $(basename ''${REPOSITORY} .git);
+
+    echo "Running the campaign post scripts"
+    ./result/finalize &> ''${ARTIFACTS_DIRECTORY}/campaign_post.txt;
   '';
 in
 {
@@ -76,19 +93,24 @@ in
     services."campaign" = {
       enable = true;
       wantedBy = [ "multi-user.target" ];
-      environment = {
-        NIX_REMOTE = "daemon";
-        NIX_PATH = "nixpkgs=${pkgs.path}";
-      };
-
+      environment = customEnvironment;
       serviceConfig = {
         EnvironmentFile = "/etc/sisyphe_secrets";
       };
-
       script = ''
         ${runCampaign}/bin/runCampaign
       '';
     };
+    services."campaign-finalize" = {
+      environment = customEnvironment;
+      serviceConfig = {
+        EnvironmentFile = "/etc/sisyphe_secrets";
+      };
+      script = ''
+        ${finalizeCampaign}/bin/finalizeCampaign
+      '';
+    };
+
   };
 
   fileSystems."${sshPath}" = {
