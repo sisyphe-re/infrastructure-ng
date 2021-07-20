@@ -92,7 +92,7 @@ in
       enable = true;
       description = "The sisyphe celery server";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "rabbitmq.service" ];
+      after = [ "network.target" "rabbitmq.service" "sisyphe.service" ];
       environment = {
         DEBUG = "${cfg.djangoDebug}";
         SHELL = "bash";

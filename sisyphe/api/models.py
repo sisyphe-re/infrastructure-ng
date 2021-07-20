@@ -14,6 +14,7 @@ class Run(models.Model):
     end = models.DateTimeField(null=True, blank=True)
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     uuid = models.CharField(max_length=100, default='')
+    hidden = models.BooleanField(default=True)
 
 class Process(models.Model):
     run = models.ForeignKey(Run, on_delete=models.CASCADE)
