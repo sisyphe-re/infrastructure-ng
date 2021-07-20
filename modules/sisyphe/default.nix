@@ -230,9 +230,6 @@ in
         AMQP_PORT = "${builtins.toString cfg.rabbitmqPort}";
       };
       preStart = ''
-        # Update sources
-        ${pkgs.coreutils}/bin/rm -rf ${cfg.dataDir}/src
-        ${pkgs.coreutils}/bin/cp -r ${../../sisyphe}/. ${cfg.dataDir}/src
         cd ${cfg.dataDir}/src &&
         ${pythonWithDjango}/bin/python manage.py migrate --noinput &&
         ${pythonWithDjango}/bin/python manage.py collectstatic --noinput
@@ -242,6 +239,12 @@ in
         ${pythonWithDjango}/bin/daphne -u /tmp/daphne.sock sisyphe.asgi:application
       '';
       serviceConfig = {
+        ExecStartPre = [
+          "+${pkgs.coreutils}/bin/rm -rf ${cfg.dataDir}/src"
+          "+${pkgs.coreutils}/bin/cp -r ${../../sisyphe}/. ${cfg.dataDir}/src"
+          "+${pkgs.coreutils}/bin/chown -R sisyphe:sisyphe /var/lib/sisyphe"
+          "+${pkgs.coreutils}/bin/chmod ug+w -R /var/lib/sisyphe"
+        ];
         WorkingDirectory = "/var/lib/sisyphe";
         StateDirectory = "sisyphe";
         RestartSec = 5;
