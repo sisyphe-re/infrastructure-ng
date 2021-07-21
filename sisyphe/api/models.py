@@ -16,6 +16,9 @@ class Run(models.Model):
     uuid = models.CharField(max_length=100, default='')
     hidden = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f"{self.campaign.name} -- {self.uuid}"
+
 class Process(models.Model):
     run = models.ForeignKey(Run, on_delete=models.CASCADE)
     pid = models.IntegerField()
