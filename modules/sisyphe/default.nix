@@ -1,4 +1,4 @@
-{ django-toolbox }: { lib, pkgs, config, ... }:
+{ lib, pkgs, config, django-toolbox, vm, ... }:
 with lib;
 let
   cfg = config.services.sisyphe;
@@ -14,9 +14,6 @@ let
   ]);
 in
 {
-  imports = [
-  ];
-
   options = {
     services.sisyphe = {
       enable = mkEnableOption "sisyphe service";
@@ -84,6 +81,12 @@ in
       };
     };
 
+    virtualisation.libvirtd =
+      {
+        enable = true;
+        qemuPackage = pkgs.qemu_full;
+      };
+
     networking.firewall = {
       allowedTCPPorts = [ cfg.rabbitmqPort ];
     };
@@ -104,13 +107,14 @@ in
         AMQP_HOST = "${cfg.rabbitmqVhost}";
         AMQP_AUTHORITY = "${cfg.host}";
         AMQP_PORT = "${builtins.toString cfg.rabbitmqPort}";
+        SISYPHE_ISO_PATH = "${vm.packages.x86_64-linux.iso.out}";
       };
       serviceConfig = {
         ExecStart = pkgs.writeScript "celery" ''#!${pkgs.runtimeShell} -l
-        export PATH=''${PATH}:${pkgs.nix}/bin:${pkgs.git}/bin:${pkgs.gnutar}/bin:${pkgs.gzip}/bin:${pkgs.nix}/bin:${pkgs.nix}/bin
-        cd ${cfg.dataDir}/src
-        ${pythonWithDjango}/bin/celery -A sisyphe worker -B
-      '';
+          export PATH=''${PATH}:${pkgs.nix}/bin:${pkgs.git}/bin:${pkgs.gnutar}/bin:${pkgs.gzip}/bin:${pkgs.nix}/bin:${pkgs.nix}/bin
+          cd ${cfg.dataDir}/src
+          ${pythonWithDjango}/bin/celery -A sisyphe worker -B
+          '';
         User = "sisyphe";
         Group = "sisyphe";
       };
@@ -142,7 +146,7 @@ in
         locations."@sisyphe_cache" = {
           proxyPass = "http://unix:/tmp/daphne.sock";
           extraConfig = ''
-            add_header X-Cache $upstream_cache_status;
+              add_header X-Cache $upstream_cache_status;
             proxy_cache sisyphe;
             proxy_cache_valid 24h;
             proxy_cache_use_stale updating error timeout http_500 http_502 http_503 http_504;
@@ -159,7 +163,7 @@ in
         locations."/artifacts/" = {
           alias = "/home/sisyphe/";
           extraConfig = ''
-            autoindex on;
+              autoindex on;
             fancyindex on;
             fancyindex_localtime on;
             fancyindex_exact_size off;
@@ -179,6 +183,7 @@ in
 
     environment.systemPackages = [
       pkgs.qemu_full
+      pkgs.libvirt
       pkgs.samba4Full
       pkgs.libguestfs-with-appliance
     ];
@@ -228,6 +233,7 @@ in
         AMQP_HOST = "${cfg.rabbitmqVhost}";
         AMQP_AUTHORITY = "${cfg.host}";
         AMQP_PORT = "${builtins.toString cfg.rabbitmqPort}";
+        SISYPHE_ISO_PATH = "${vm.packages.x86_64-linux.iso.out}";
       };
       preStart = ''
         cd ${cfg.dataDir}/src &&

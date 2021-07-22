@@ -50,7 +50,7 @@ def runCampaign(instance_id):
 
     print("Building a new VM...")
     with open(f"{dirname}/vm_build.stdout.txt","wb") as out, open(f"{dirname}/vm_build.stderr.txt","wb") as err:
-        process = subprocess.run(f"cd {dirname} && export BUILD_PATH=$(nix-build-stable /etc/nixos/sisyphe/sisyphe/images.nix -A standalone.eval --no-out-link --arg nixosConfiguration /etc/nixos/sisyphe/sisyphe/configuration.nix) && cp $BUILD_PATH/*.qcow2 /var/tmp/sisyphe_{uuid_str}_nixos.qcow2 && chmod u+w /var/tmp/sisyphe_{uuid_str}_nixos.qcow2", stdout=out, stderr=err, shell=True, env=environment)
+        process = subprocess.run(f"cd {dirname} && cp $SISYPHE_ISO_PATH/*.qcow2 /var/tmp/sisyphe_{uuid_str}_nixos.qcow2 && chmod u+w /var/tmp/sisyphe_{uuid_str}_nixos.qcow2", stdout=out, stderr=err, shell=True, env=environment)
 
     print("Injecting secrets into the VM...")
     tmp_env = tempfile.NamedTemporaryFile(mode='w+t')
@@ -70,6 +70,8 @@ def runCampaign(instance_id):
             f'run\n'
             f'mount /dev/sda1 /\n'
             f'upload {tmp_env.name} /etc/sisyphe_secrets\n'
+            f'mkdir /root/.ssh/\n'
+            f'write /root/.ssh/authorized_keys "{public_key_str}"\n'
             f'quit'
     )
     guestfish_commands.file.flush()

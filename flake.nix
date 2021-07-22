@@ -5,10 +5,11 @@
     {
       nixpkgs.url = github:NixOS/nixpkgs/nixos-21.05;
       sops-nix.url = github:Mic92/sops-nix;
+      vm.url = github:sisyphe-re/VM;
       django-toolbox.url = github:sisyphe-re/django-toolbox;
     };
 
-  outputs = { self, nixpkgs, sops-nix, django-toolbox }:
+  outputs = { self, nixpkgs, sops-nix, django-toolbox, vm }:
     {
       devShell.x86_64-linux =
         with import nixpkgs { system = "x86_64-linux"; };
@@ -35,13 +36,9 @@
               export DB_NAME="/home/remy/Sisyphe/infrastructure-ng/sisyphe/sisyphe.db3";
               export DJANGO_HOST="127.0.0.1";
               export DJANGO_SECRET_KEY="toto";
-              cd sisyphe
             '';
           };
-      specialArgs = {
-        inherit django-toolbox;
-      };
-      nixosModules.sisyphe = import ./modules/sisyphe { inherit django-toolbox; };
+      nixosModules.sisyphe =  {pkgs, ...}@args: import ./modules/sisyphe (args // {inherit vm django-toolbox; });
       nixosModule = self.nixosModules.sisyphe;
     };
 }
