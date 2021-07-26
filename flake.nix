@@ -15,6 +15,7 @@
         with import nixpkgs { system = "x86_64-linux"; };
         let customPython = python3.withPackages
           (p: [
+            p.libvirt
             p.django_3
             p.psycopg2
             p.daphne

@@ -3,6 +3,7 @@ with lib;
 let
   cfg = config.services.sisyphe;
   pythonWithDjango = pkgs.python3.withPackages (p: [
+    p.libvirt
     p.django_3
     p.psycopg2
     p.daphne
