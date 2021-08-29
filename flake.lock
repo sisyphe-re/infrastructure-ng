@@ -1,30 +1,12 @@
 {
   "nodes": {
-    "django-toolbox": {
-      "inputs": {
-        "nixpkgs": "nixpkgs"
-      },
-      "locked": {
-        "lastModified": 1624183097,
-        "narHash": "sha256-9TYJsLdv6y/iHatnDyAmrY/a4xcL9w9WwGYqgJSnV0Q=",
-        "owner": "sisyphe-re",
-        "repo": "django-toolbox",
-        "rev": "7d174a88f658feb3b770920a141f79d4456ab41e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sisyphe-re",
-        "repo": "django-toolbox",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1623961232,
-        "narHash": "sha256-5X5v37GTBFdQnc3rvbSPJyAtO+/z1wHZF3Kz61g2Mx4=",
+        "lastModified": 1634661806,
+        "narHash": "sha256-fBuR7EZ67UOdNt3gEwhoyWJ6zJtXh4kuupIALRcx/7I=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "bad3ccd099ebe9a8aa017bda8500ab02787d90aa",
+        "rev": "8fe3b97ef4527ac88d03ea33e0789f3512e01adc",
         "type": "github"
       },
       "original": {
@@ -36,11 +18,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1627460592,
-        "narHash": "sha256-jdJqJi9DSPiGOY9xlZSi0ufDJpS6ezvDdx8AQq5VuyI=",
+        "lastModified": 1634661806,
+        "narHash": "sha256-fBuR7EZ67UOdNt3gEwhoyWJ6zJtXh4kuupIALRcx/7I=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "382039c05a16827a7f0731183e862366b66b422f",
+        "rev": "8fe3b97ef4527ac88d03ea33e0789f3512e01adc",
         "type": "github"
       },
       "original": {
@@ -68,11 +50,11 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1627361463,
-        "narHash": "sha256-AqEOhF60+dAZWer6FR4n6QG3CSVn4sgbb7GOdJCVo9g=",
+        "lastModified": 1634551044,
+        "narHash": "sha256-HOHemrQt3wA7eS5YT8n+X0OdB9+X4O08YUPTrFMBG60=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "82151321eeaef290b8345803e0b217a261b7c4e1",
+        "rev": "f001876680c0e32a89bced8d02d2c61250684e17",
         "type": "github"
       },
       "original": {
@@ -82,10 +64,62 @@
         "type": "github"
       }
     },
+    "nixpkgs_5": {
+      "locked": {
+        "lastModified": 1632418649,
+        "narHash": "sha256-4rZspkiQU7zbsuciRRMgoEPkAF/+FSv2jx/VIPxPVx4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "056a3c1fae30d06d14b171b9023743c21a23ec1a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-21.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "rgrunbla-pkgs": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1634741945,
+        "narHash": "sha256-MBjHXl+Ll3yiTskmrxk1a9BRiiR0mqiYF0pnd8yO08U=",
+        "owner": "rgrunbla",
+        "repo": "Flakes",
+        "rev": "c3710de959496113bd23d724a98314f7ba2136cf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rgrunbla",
+        "repo": "Flakes",
+        "type": "github"
+      }
+    },
+    "rgrunbla-pkgs_2": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_5"
+      },
+      "locked": {
+        "lastModified": 1633509638,
+        "narHash": "sha256-P0H99wMME3FfY2oVxKc1SfhnbVLYzhlI0b7/uL9Fkog=",
+        "owner": "rgrunbla",
+        "repo": "Flakes",
+        "rev": "2761fd6f4a12546daa72a5db93554494468af3a6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rgrunbla",
+        "repo": "Flakes",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
-        "django-toolbox": "django-toolbox",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs",
+        "rgrunbla-pkgs": "rgrunbla-pkgs",
         "sops-nix": "sops-nix",
         "vm": "vm"
       }
@@ -95,11 +129,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1625936460,
-        "narHash": "sha256-U6xlITKrYuhlHWe+poACaz4GJl3ZVN1BSUqZe2gFg+g=",
+        "lastModified": 1633273832,
+        "narHash": "sha256-oOjpMVYpkIUpiML61PeqTk+sg4juRvF7P6jroI/YvTw=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "ec2800174de5a7be8ec5b144819af2c7de77abe2",
+        "rev": "2e86e1698d53e5bd71d9de5f8b7e8f2f5458633c",
         "type": "github"
       },
       "original": {
@@ -110,14 +144,15 @@
     },
     "vm": {
       "inputs": {
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": "nixpkgs_4",
+        "rgrunbla-pkgs": "rgrunbla-pkgs_2"
       },
       "locked": {
-        "lastModified": 1627544700,
-        "narHash": "sha256-Ue8GbVXc0raabVMOiRK7uxWaLhYRCrnhR3gWN0zOE5o=",
+        "lastModified": 1634652766,
+        "narHash": "sha256-4on8GiDB3O3WDukCWfu63oh3Pc7vEZKuAiXCJLBGlRA=",
         "owner": "sisyphe-re",
         "repo": "VM",
-        "rev": "459fdad394584d2a344e2831b2b87c7fe1714846",
+        "rev": "682d2e88264295146d3ccefee8574d3ba8bf4dd0",
         "type": "github"
       },
       "original": {

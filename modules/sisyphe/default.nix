@@ -1,4 +1,4 @@
-{ lib, pkgs, config, django-toolbox, vm, ... }:
+{ lib, pkgs, config, rgrunbla-pkgs, vm, ... }:
 with lib;
 let
   cfg = config.services.sisyphe;
@@ -10,8 +10,8 @@ let
     p.celery
     p.cryptography
     p.python-crontab
-    (pkgs.python3Packages.toPythonModule django-toolbox.packages.x86_64-linux.django-celery-beat)
-    (pkgs.python3Packages.toPythonModule django-toolbox.packages.x86_64-linux.django-timezone-field)
+    (pkgs.python3Packages.toPythonModule rgrunbla-pkgs.packages.x86_64-linux.django-celery-beat)
+    (pkgs.python3Packages.toPythonModule rgrunbla-pkgs.packages.x86_64-linux.django-timezone-field)
   ]);
 in
 {
