@@ -2,7 +2,12 @@
 with lib;
 let
   cfg = config.services.sisyphe;
-  pythonWithDjango = pkgs.python3.withPackages (p: [
+  py = python3.override {
+    packageOverrides = self: super: {
+      django = super.django_3;
+    };
+  };
+  pythonWithDjango = py.withPackages (p: [
     p.libvirt
     p.django_3
     p.psycopg2
@@ -10,6 +15,10 @@ let
     p.celery
     p.cryptography
     p.python-crontab
+    # Django Rest Framework
+    p.djangorestframework
+    p.markdown
+    p.django-filter
     (pkgs.python3Packages.toPythonModule rgrunbla-pkgs.packages.x86_64-linux.django-celery-beat)
     (pkgs.python3Packages.toPythonModule rgrunbla-pkgs.packages.x86_64-linux.django-timezone-field)
   ]);
