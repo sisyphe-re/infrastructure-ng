@@ -17,7 +17,6 @@ class LibVirtWorker:
         self.environment = os.environ.copy()
         self.backing_image_path = self.environment["SISYPHE_ISO_PATH"] + "/nixos.qcow2"
 
-        self.process = None
         self.campaign = models.Campaign.objects.get(id=self.instance_id)
         self.run = models.Run.objects.create(campaign=self.campaign, uuid=self.uuid)
 
@@ -142,7 +141,6 @@ class LibVirtWorker:
             </domain>
         '''
         self.connection.createXML(domainXML)
-        self.process = models.Process.objects.create(run=self.run, pid=0, sshPort=self.ssh_port)
 
     def configure_domain(self):
         # Configure SSH
@@ -218,7 +216,7 @@ def runCampaign(instance_id):
     worker.disconnect()
 
     stopCampaign.apply_async(
-        (worker.process.pk, worker.uuid,),   # args
+        (worker.run.pk, worker.uuid,),   # args
         eta=datetime.datetime.now() + datetime.timedelta(minutes=worker.campaign.duration)
     )
 
@@ -237,8 +235,7 @@ def stopCampaign(pk, uuid):
         print('Failed to open connection to the hypervisor')
         exit(1)
     print("Update the database")
-    process = models.Process.objects.get(pk=pk)
-    run = process.run
+    run = models.Run.objects.get(pk=pk)
     run.end = datetime.datetime.now()
     run.hidden = False
     run.save()

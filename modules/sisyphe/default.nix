@@ -2,7 +2,7 @@
 with lib;
 let
   cfg = config.services.sisyphe;
-  py = python3.override {
+  py = pkgs.python3.override {
     packageOverrides = self: super: {
       django = super.django_3;
     };

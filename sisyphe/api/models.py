@@ -19,12 +19,6 @@ class Run(models.Model):
     def __str__(self):
         return f"{self.campaign.name} -- {self.uuid}"
 
-class Process(models.Model):
-    run = models.ForeignKey(Run, on_delete=models.CASCADE)
-    pid = models.IntegerField()
-    running = models.BooleanField(default=True)
-    sshPort = models.IntegerField()
-
 class EnvironmentVariable(models.Model):
     campaign = models.ManyToManyField(Campaign)
     key = models.TextField()
