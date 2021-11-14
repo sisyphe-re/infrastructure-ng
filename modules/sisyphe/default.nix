@@ -3,9 +3,7 @@ with lib;
 let
   cfg = config.services.sisyphe;
   py = pkgs.python3.override {
-    packageOverrides = self: super: {
-      django = super.django_3;
-    };
+    packageOverrides = self: super: { django = super.django_3; };
   };
   pythonWithDjango = py.withPackages (p: [
     p.libvirt
@@ -19,11 +17,12 @@ let
     p.djangorestframework
     p.markdown
     p.django-filter
-    (pkgs.python3Packages.toPythonModule rgrunbla-pkgs.packages.x86_64-linux.django-celery-beat)
-    (pkgs.python3Packages.toPythonModule rgrunbla-pkgs.packages.x86_64-linux.django-timezone-field)
+    (pkgs.python3Packages.toPythonModule
+      rgrunbla-pkgs.packages.x86_64-linux.django-celery-beat)
+    (pkgs.python3Packages.toPythonModule
+      rgrunbla-pkgs.packages.x86_64-linux.django-timezone-field)
   ]);
-in
-{
+in {
   options = {
     services.sisyphe = {
       enable = mkEnableOption "sisyphe service";
@@ -91,15 +90,12 @@ in
       };
     };
 
-    virtualisation.libvirtd =
-      {
-        enable = true;
-        qemuPackage = pkgs.qemu_full;
-      };
-
-    networking.firewall = {
-      allowedTCPPorts = [ cfg.rabbitmqPort ];
+    virtualisation.libvirtd = {
+      enable = true;
+      qemu.package = pkgs.qemu_full;
     };
+
+    networking.firewall = { allowedTCPPorts = [ cfg.rabbitmqPort ]; };
 
     systemd.services.celery = {
       enable = true;
@@ -120,11 +116,12 @@ in
         SISYPHE_ISO_PATH = "${vm.packages.x86_64-linux.iso.out}";
       };
       serviceConfig = {
-        ExecStart = pkgs.writeScript "celery" ''#!${pkgs.runtimeShell} -l
-          export PATH=''${PATH}:${pkgs.nix}/bin:${pkgs.git}/bin:${pkgs.gnutar}/bin:${pkgs.gzip}/bin:${pkgs.nix}/bin:${pkgs.nix}/bin
-          cd ${cfg.dataDir}/src
-          ${pythonWithDjango}/bin/celery -A sisyphe worker -B
-          '';
+        ExecStart = pkgs.writeScript "celery" ''
+          #!${pkgs.runtimeShell} -l
+                    export PATH=''${PATH}:${pkgs.nix}/bin:${pkgs.git}/bin:${pkgs.gnutar}/bin:${pkgs.gzip}/bin:${pkgs.nix}/bin:${pkgs.nix}/bin
+                    cd ${cfg.dataDir}/src
+                    ${pythonWithDjango}/bin/celery -A sisyphe worker -B
+                    '';
         User = "sisyphe";
         Group = "sisyphe";
       };
@@ -136,9 +133,7 @@ in
     users.users.nginx.extraGroups = [ "sisyphe" ];
     systemd.services.nginx.serviceConfig = {
       ProtectHome = "read-only";
-      BindReadOnlyPaths = [
-        "/tmp/daphne.sock"
-      ];
+      BindReadOnlyPaths = [ "/tmp/daphne.sock" ];
     };
 
     services.nginx = {
@@ -187,9 +182,10 @@ in
     networking.nat.internalInterfaces = [ "ve-+" ];
     networking.nat.externalInterface = "enp1s0";
 
-    networking.firewall.allowedTCPPortRanges = [
-      { from = 10000; to = 65535; }
-    ];
+    networking.firewall.allowedTCPPortRanges = [{
+      from = 10000;
+      to = 65535;
+    }];
 
     environment.systemPackages = [
       pkgs.qemu_full
@@ -198,7 +194,10 @@ in
       pkgs.libguestfs-with-appliance
     ];
 
+    users.groups.sisyphe = { };
+
     users.users.sisyphe = {
+      group = "sisyphe";
       uid = 1337;
       isSystemUser = true;
       createHome = true;
@@ -206,27 +205,21 @@ in
       extraGroups = [ "wheel" ];
     };
 
-    systemd.tmpfiles.rules = [
-      "d /home/sisyphe 0755 sisyphe sisyphe"
-    ];
+    systemd.tmpfiles.rules = [ "d /home/sisyphe 0755 sisyphe sisyphe" ];
 
-    security.sudo.extraRules = [
-      {
-        users = [ "sisyphe" ];
-        commands = [
-          {
-            command = "ALL";
-            options = [ "NOPASSWD" ]; # "SETENV" # Adding the following could be a good idea
-          }
-        ];
-      }
-    ];
+    security.sudo.extraRules = [{
+      users = [ "sisyphe" ];
+      commands = [{
+        command = "ALL";
+        options =
+          [ "NOPASSWD" ]; # "SETENV" # Adding the following could be a good idea
+      }];
+    }];
 
     users.groups.sisyphe = {
       gid = 1337;
       members = [ "sisyphe" ];
     };
-
 
     systemd.services.sisyphe = {
       description = "The sisyphe django server";

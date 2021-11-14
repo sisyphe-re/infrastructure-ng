@@ -3,7 +3,7 @@
 
   inputs =
     {
-      nixpkgs.url = github:NixOS/nixpkgs/nixos-21.05;
+      nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
       sops-nix.url = github:Mic92/sops-nix;
       vm.url = github:sisyphe-re/VM;
       rgrunbla-pkgs.url = github:rgrunbla/Flakes;
