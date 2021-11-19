@@ -2,32 +2,32 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1636792033,
-        "narHash": "sha256-5RwKd3+OolhWAPUQG9SNoptr9eks8j2oukKgjAo5NQA=",
+        "lastModified": 1636976544,
+        "narHash": "sha256-9ZmdyoRz4Qu8bP5BKR1T10YbzcB9nvCeQjOEw2cRKR0=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "68d4f5970b69b0fd0a95c57c8d0ab4b2b68fb9aa",
+        "rev": "931ab058daa7e4cd539533963f95e2bb0dbd41e6",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-21.05",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1634661806,
-        "narHash": "sha256-fBuR7EZ67UOdNt3gEwhoyWJ6zJtXh4kuupIALRcx/7I=",
+        "lastModified": 1636976544,
+        "narHash": "sha256-9ZmdyoRz4Qu8bP5BKR1T10YbzcB9nvCeQjOEw2cRKR0=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "8fe3b97ef4527ac88d03ea33e0789f3512e01adc",
+        "rev": "931ab058daa7e4cd539533963f95e2bb0dbd41e6",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-21.05",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -85,11 +85,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1634741945,
-        "narHash": "sha256-MBjHXl+Ll3yiTskmrxk1a9BRiiR0mqiYF0pnd8yO08U=",
+        "lastModified": 1637318260,
+        "narHash": "sha256-uHe3ZOFkF3ZNBsz14rthO98kwFOahBAgWI96kWVQaTM=",
         "owner": "rgrunbla",
         "repo": "Flakes",
-        "rev": "c3710de959496113bd23d724a98314f7ba2136cf",
+        "rev": "6e2a6a58aec7934adf0ce10db5fca905923cef20",
         "type": "github"
       },
       "original": {
@@ -129,11 +129,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1636842446,
-        "narHash": "sha256-fsA6OextnFjJkfiatKyoa/zPSEpvCTrG+zKQiaTHKwc=",
+        "lastModified": 1637050424,
+        "narHash": "sha256-8IaY0/Y5g3jJiQzPN0PflKFcFEE1C29DZZ0dF1NIJ6s=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "9a961ab91c3e1b5561725b0c833c862cf22dc76a",
+        "rev": "3c53d012ac77d4bd8428f9c847709e287c897ad9",
         "type": "github"
       },
       "original": {

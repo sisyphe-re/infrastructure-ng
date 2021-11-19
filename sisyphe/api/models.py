@@ -26,3 +26,11 @@ class EnvironmentVariable(models.Model):
 
     def __str__(self):
         return f"{self.key} -> {self.value}"
+
+class RunInformation(models.Model):
+    campaign = models.ManyToManyField(Run)
+    key = models.TextField()
+    value = models.TextField()
+
+    def __str__(self):
+        return f"{self.key} -> {self.value}"

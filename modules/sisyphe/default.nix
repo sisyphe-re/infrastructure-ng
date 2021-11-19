@@ -2,33 +2,38 @@
 with lib;
 let
   cfg = config.services.sisyphe;
-  py = pkgs.python3.override {
-    packageOverrides = self: super: { django = super.django_3; };
+  my_python = pkgs.python3.override {
+    packageOverrides = self: super: {
+      django = super.django_3;
+    };
   };
-  pythonWithDjango = py.withPackages (p: [
+  django-celery-beat = (my_python.pkgs.toPythonModule
+    rgrunbla-pkgs.packages.x86_64-linux.django-celery-beat);
+  pythonWithDjango = my_python.withPackages (p: [
     p.libvirt
-    p.django_3
     p.psycopg2
     p.daphne
     p.celery
     p.cryptography
     p.python-crontab
-    # Django Rest Framework
     p.djangorestframework
     p.markdown
     p.django-filter
-    (pkgs.python3Packages.toPythonModule
-      rgrunbla-pkgs.packages.x86_64-linux.django-celery-beat)
-    (pkgs.python3Packages.toPythonModule
-      rgrunbla-pkgs.packages.x86_64-linux.django-timezone-field)
+    p.django-timezone-field
+    django-celery-beat
   ]);
-in {
+in
+{
   options = {
     services.sisyphe = {
       enable = mkEnableOption "sisyphe service";
       host = mkOption {
         type = types.str;
         default = "sisyphe-api.grunblatt.org";
+      };
+      cacheHost = mkOption {
+        type = types.str;
+        default = "cache.grunblatt.org";
       };
       dataDir = mkOption {
         type = types.str;
@@ -38,6 +43,10 @@ in {
       rabbitmqPort = mkOption {
         type = types.int;
         default = 5672;
+      };
+      rabbitmqHost = mkOption {
+        type = types.str;
+        default = "localhost";
       };
       rabbitmqVhost = mkOption {
         type = types.str;
@@ -75,6 +84,10 @@ in {
         type = types.str;
         default = "False";
       };
+      enableTls = mkOption {
+        type = types.bool;
+        default = false;
+      };
     };
   };
 
@@ -84,6 +97,7 @@ in {
       enable = true;
       listenAddress = "0.0.0.0";
       configItems = {
+        "consumer_timeout" = "86400000";
         "default_user" = "${cfg.rabbitmqUsername}";
         "default_pass" = "${cfg.rabbitmqPassword}";
         "default_vhost" = "${cfg.rabbitmqVhost}";
@@ -111,7 +125,7 @@ in {
         AMQP_PASSWORD = "${cfg.rabbitmqPassword}";
         AMQP_USER = "${cfg.rabbitmqUsername}";
         AMQP_HOST = "${cfg.rabbitmqVhost}";
-        AMQP_AUTHORITY = "${cfg.host}";
+        AMQP_AUTHORITY = "${cfg.rabbitmqHost}";
         AMQP_PORT = "${builtins.toString cfg.rabbitmqPort}";
         SISYPHE_ISO_PATH = "${vm.packages.x86_64-linux.iso.out}";
       };
@@ -121,7 +135,7 @@ in {
                     export PATH=''${PATH}:${pkgs.nix}/bin:${pkgs.git}/bin:${pkgs.gnutar}/bin:${pkgs.gzip}/bin:${pkgs.nix}/bin:${pkgs.nix}/bin
                     cd ${cfg.dataDir}/src
                     ${pythonWithDjango}/bin/celery -A sisyphe worker -B
-                    '';
+        '';
         User = "sisyphe";
         Group = "sisyphe";
       };
@@ -141,43 +155,56 @@ in {
       enable = true;
       preStart = "mkdir -p /data/nginx/cache";
       recommendedProxySettings = true;
-      recommendedTlsSettings = true;
+      recommendedTlsSettings = cfg.enableTls;
       appendHttpConfig = ''
         proxy_cache_path /data/nginx/cache levels=1:2 keys_zone=sisyphe:720m inactive=24h max_size=1g;
       '';
-      virtualHosts."${cfg.host}" = {
-        enableACME = true;
-        forceSSL = true;
-        locations."@sisyphe_cache" = {
-          proxyPass = "http://unix:/tmp/daphne.sock";
-          extraConfig = ''
+      virtualHosts = {
+        "${cfg.host}" = {
+          enableACME = cfg.enableTls;
+          forceSSL = cfg.enableTls;
+          locations."@sisyphe_cache" = {
+            proxyPass = "http://unix:/tmp/daphne.sock";
+            extraConfig = ''
               add_header X-Cache $upstream_cache_status;
-            proxy_cache sisyphe;
-            proxy_cache_valid 24h;
-            proxy_cache_use_stale updating error timeout http_500 http_502 http_503 http_504;
-            proxy_cache_background_update on;
-            proxy_cache_key "$scheme://$host$request_method$request_uri";
-            proxy_connect_timeout       300;
-            proxy_send_timeout          300;
-            proxy_read_timeout          300;
-            send_timeout                300;
-          '';
-        };
-        locations."/" = { proxyPass = "http://unix:/tmp/daphne.sock"; };
-        locations."/static/" = { alias = "/var/www/static/"; };
-        locations."/artifacts/" = {
-          alias = "/home/sisyphe/";
-          extraConfig = ''
+              proxy_cache sisyphe;
+              proxy_cache_valid 24h;
+              proxy_cache_use_stale updating error timeout http_500 http_502 http_503 http_504;
+              proxy_cache_background_update on;
+              proxy_cache_key "$scheme://$host$request_method$request_uri";
+              proxy_connect_timeout       300;
+              proxy_send_timeout          300;
+              proxy_read_timeout          300;
+              send_timeout                300;
+            '';
+          };
+          locations."/" = { proxyPass = "http://unix:/tmp/daphne.sock"; };
+          locations."/static/" = { alias = "/var/www/static/"; };
+          locations."/artifacts/" = {
+            alias = "/home/sisyphe/";
+            extraConfig = ''
               autoindex on;
-            fancyindex on;
-            fancyindex_localtime on;
-            fancyindex_exact_size off;
-            fancyindex_name_length 255;
-            fancyindex_ignore "store";
+              fancyindex on;
+              fancyindex_localtime on;
+              fancyindex_exact_size off;
+              fancyindex_name_length 255;
+              fancyindex_ignore "store";
+            '';
+          };
+        };
+
+        "~^(?<subdomain>.+)\.${cfg.cacheHost}$" = {
+          forceSSL = cfg.enableTls;
+          locations."/" = {
+            root = "/home/sisyphe/$subdomain/store";
+          };
+          extraConfig = ''
+            autoindex on;
           '';
         };
       };
     };
+
     networking.nat.enable = true;
     networking.nat.internalInterfaces = [ "ve-+" ];
     networking.nat.externalInterface = "enp1s0";
@@ -234,17 +261,14 @@ in {
         AMQP_PASSWORD = "${cfg.rabbitmqPassword}";
         AMQP_USER = "${cfg.rabbitmqUsername}";
         AMQP_HOST = "${cfg.rabbitmqVhost}";
-        AMQP_AUTHORITY = "${cfg.host}";
+        AMQP_AUTHORITY = "${cfg.rabbitmqHost}";
         AMQP_PORT = "${builtins.toString cfg.rabbitmqPort}";
         SISYPHE_ISO_PATH = "${vm.packages.x86_64-linux.iso.out}";
       };
-      preStart = ''
-        cd ${cfg.dataDir}/src &&
-        ${pythonWithDjango}/bin/python manage.py migrate --noinput &&
-        ${pythonWithDjango}/bin/python manage.py collectstatic --noinput
-      '';
       script = ''
         cd ${cfg.dataDir}/src &&
+        ${pythonWithDjango}/bin/python manage.py migrate --noinput &&
+        ${pythonWithDjango}/bin/python manage.py collectstatic --noinput &&
         ${pythonWithDjango}/bin/daphne -u /tmp/daphne.sock sisyphe.asgi:application
       '';
       serviceConfig = {
